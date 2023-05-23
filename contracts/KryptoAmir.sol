@@ -35,7 +35,7 @@ contract KryptoAmir is ReentrancyGuard {
     }
 
     
-    //..................... Mint NFT in Market .....................
+    //..................... Sell NFT in Market .....................
 
     function sell(
         address nftContract,
