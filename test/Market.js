@@ -31,13 +31,19 @@ describe("KRPAMIR", function () {
     // mint a new token
     await NFT.mintToken("http-Token1");
     await NFT.mintToken("http-Token2");
+    
+    
+    // const ownerToken= await NFT.getOwnerMintedToken(TokenId1);
+    // console.log("owner the minted Token",ownerToken.toString());
 
+    
     // Prepare tokens for sale on Market
     await Market.sell(NFTContractAddress,1,auctionprice,{value: listingprice})
     await Market.sell(NFTContractAddress,2,auctionprice,{value: listingprice})
 
+
     // Buy token from Market
-    const [_,buyerAddress]=await ethers.getSigners()
+    const [sellerAddress,buyerAddress]=await ethers.getSigners()
 
     await Market.connect(buyerAddress).BuyNft(NFTContractAddress,1,{value:auctionprice})
 
@@ -60,6 +66,27 @@ describe("KRPAMIR", function () {
 
     }))
 
+    let unsoldedItems= await Market.getUnsoldedNFTS()
+
+    unsoldedItems = await Promise.all(unsoldedItems.map(async i =>{
+      const tokenURI=await NFT.GetTokenURI(i.tokenId)
+
+      let item={
+        Price: ethers.utils.formatUnits(i.price,'ether').toString(),
+        TokenId: i.tokenId.toString(),
+        Seller: i.seller,
+        tokenURI
+      }
+
+      return item
+
+    }))
+
     console.log("your Items:",Items)
+
+
+    console.log("Unsolded Items:",unsoldedItems);
+
+
   });
 });

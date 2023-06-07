@@ -13,8 +13,12 @@ contract NFT is ERC721URIStorage {
 
     address private marketcontract;
 
-    mapping(uint256 => string) private tokeURIS;
+    // mapping(uint256 => TokenDetails) private TokenDT;
 
+    struct TokenDetails {
+        address creator;
+        string tokenURI;
+    }
 
     constructor(address marketplaceAddress ) ERC721("KryptoAmir","KRPAMIR") {
         marketcontract=marketplaceAddress;
@@ -24,7 +28,7 @@ contract NFT is ERC721URIStorage {
         _tokenIds.increment();
         uint256 newtokenId=_tokenIds.current();
 
-        tokeURIS[newtokenId]=tokenURI;
+        // TokenDT[newtokenId]=TokenDetails(msg.sender,tokenURI);
         // mint function get 2 argumet: 1- address hoes mint token 2-tokenId
         _mint(msg.sender,newtokenId);
 
@@ -39,9 +43,15 @@ contract NFT is ERC721URIStorage {
 
     function GetTokenURI(uint256 tokeId) public view returns(string memory) {
 
-        string memory tokenURI=tokeURIS[tokeId];
-        return tokenURI;
+        string memory tokenuri=tokenURI(tokeId);
+        return tokenuri;
 
     }
+
+    function getOwnerMintedToken(uint256 tokenid) public view returns(address){
+        return _ownerOf(tokenid);
+    }
+
+    
 
 }

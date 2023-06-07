@@ -6,24 +6,32 @@
 // global scope, and execute the script.
 const { ethers } = require("hardhat");
 const hre = require("hardhat");
+const fs=require('fs');
 
 async function main() {
   const contract = await ethers.getContractFactory("KryptoAmir");
   const Market = await contract.deploy();
   await Market.deployed();
-  const MarketAddress = Market.address;
+  console.log("nftMarket Contract deployed to:",Market.address);
 
-  let ListingPrice = await Market.GetListingPrice();
-  // ListingPrice = ListingPrice.tostring();
-
-  const Setauctionprice = await ethers.utils.parseUnits("100", "ether");
 
   const nftContract = await ethers.getContractFactory("NFT");
-  const NFT = await nftContract.deploy(MarketAddress);
+  const NFT = await nftContract.deploy(Market.address);
   await NFT.deployed();
-  const NFTContractAddress = NFT.address;
+  console.log("nft Contract deployed to:",NFT.address);
 
   console.log("deployed all contract successfuly");
+  
+  let config=`
+    export const nftMarketaddress=${Market.address}
+    export const nftaddress=${NFT.address}
+  `
+
+  let data= JSON.stringify(config)
+
+  fs.writeFileSync("./config.js",JSON.parse(data))
+
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere

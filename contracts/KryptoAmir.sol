@@ -35,7 +35,7 @@ contract KryptoAmir is ReentrancyGuard {
     }
 
     
-    //..................... Sell NFT in Market .....................
+    //..................... Mint NFT in Market .....................
 
     function sell(
         address nftContract,
@@ -61,7 +61,7 @@ contract KryptoAmir is ReentrancyGuard {
         );
 
         IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
-        payable(owner).transfer(listingprice);
+        // payable(owner).transfer(listingprice);
     }
 
     //..................... Buy NFT From Market .....................
@@ -75,10 +75,6 @@ contract KryptoAmir is ReentrancyGuard {
             msg.value == price,
             "please submit the asking price to continue"
         );
-        require(
-            mintMarket[itemId].issold == false,
-            "this NFT Solded Before Sorry about that.."
-        );
         // send amount of nft for seller
         mintMarket[itemId].seller.transfer(msg.value);
 
@@ -86,6 +82,8 @@ contract KryptoAmir is ReentrancyGuard {
 
         mintMarket[itemId].owner = payable(msg.sender);
         mintMarket[itemId].issold = true;
+
+        // delete(mintMarket[itemId]);
         payable(owner).transfer(listingprice);
     }
 
