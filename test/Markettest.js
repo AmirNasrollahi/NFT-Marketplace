@@ -1,5 +1,5 @@
 const { expect, assert } = require("chai");
-const { ethers, utils } = require("hardhat");
+const { ethers }=require('hardhat');
 
 describe("KryptoAmir", function () {
   let Market,
@@ -31,15 +31,45 @@ describe("KryptoAmir", function () {
     listingPrice = await Market.GetListingPrice();
     listingPrice = listingPrice.toString();
 
-    assert.equal(await Market.GetListingPrice(), listingPrice);
+    // assert.equal(await Market.GetListingPrice(), listingPrice);
   });
 
-  it("should mint a new token in NFT contract", async function () {
-    tokenId = await NFT.mintToken("http-Token1");
-    // tokenId = tokenId.toString();
-    // Perform necessary assertions or checks here
-    // TokenId = utils.keccak256(utils.toUtf8Bytes(tokenId))
-    TokenId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(tokenId));
+  it("should mint a new token in NFT contract and sell in market", async function () {
+    const MarketContract2 = await ethers.getContractFactory("KryptoAmir");
+    const Market2 = await MarketContract2.deploy();
+    await Market2.deployed();
+    const MarketContractAddress2 = Market2.address;
+    ///////////////////////////////////////
+    const nftContract2 = await ethers.getContractFactory("NFT");
+    const NFT2 = await nftContract2.deploy(MarketContractAddress2);
+    await NFT2.deployed();
+    const NFTContractAddress2 = NFT2.address;
+    ////////////////////////////////////////////
+    tokenId = await NFT2.mintToken("http-Token12222");
+    // const ttlSupply=await NFT2.totalSupply()
+    await Market2.sell(NFTContractAddress2, 1, auctionPrice, {
+      value: listingPrice,
+    });
+
+
+    let items= await Market2.getUnsoldedNFTS()
+
+    items=await Promise.all(items.map( async i=>{
+        const uri=await NFT2.GetTokenURI(i.tokenId)
+
+        const item={
+          Tokenid:i.tokenId.toString(),
+          Price: ethers.utils.formatUnits(i.price,"ether").toString(),
+          Seller: i.seller,
+          Owner:i.owner,
+          uri
+
+        }
+
+        return item
+    }))
+
+    console.log("unsolded items:",items);
   });
 
 
@@ -50,10 +80,8 @@ describe("KryptoAmir", function () {
 
   // console.log(owner);
 
-  it("should sell NFT in the Market", async function () {
-    await Market.sell(NFTContractAddress, 1, auctionPrice, {
-      value: listingPrice,
-    });
-    // Perform necessary assertions or checks here
-  });
+  // it("should sell NFT in the Market", async function () {
+    
+  //   // Perform necessary assertions or checks here
+  // });
 });

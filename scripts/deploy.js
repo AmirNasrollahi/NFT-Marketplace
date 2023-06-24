@@ -4,33 +4,33 @@
 // You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
-const { ethers } = require("hardhat");
-const hre = require("hardhat");
+const hre = require('hardhat');
 const fs=require('fs');
 
 async function main() {
-  const contract = await ethers.getContractFactory("KryptoAmir");
+  const contract = await  hre.ethers.getContractFactory("KryptoAmir");
   const Market = await contract.deploy();
   await Market.deployed();
-  console.log("nftMarket Contract deployed to:",Market.address);
+  const Marketaddress= Market.address;
+  console.log("nftMarket Contract deployed to:",Marketaddress);
 
 
-  const nftContract = await ethers.getContractFactory("NFT");
-  const NFT = await nftContract.deploy(Market.address);
+  const nftContract = await hre.ethers.getContractFactory("NFT");
+  const NFT = await nftContract.deploy(Marketaddress);
   await NFT.deployed();
-  console.log("nft Contract deployed to:",NFT.address);
+  const nftaddress=NFT.address
+  console.log("nft Contract deployed to:",nftaddress);
 
   console.log("deployed all contract successfuly");
   
   let config=`
-    export const nftMarketaddress=${Market.address}
-    export const nftaddress=${NFT.address}
+    export const nftMarketaddress="${Marketaddress}"
+    export const nftaddress="${nftaddress}"
   `
 
   let data= JSON.stringify(config)
 
   fs.writeFileSync("./config.js",JSON.parse(data))
-
 
 }
 
